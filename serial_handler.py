@@ -9,8 +9,7 @@ class SerialHandler:
 
     def __init__(self):
         self.is_running = False
-        self.message = None  # type: str
-        self.on_data_received = EventHandler(self)
+        self.on_received = EventHandler(self)
         self.thread = None  # type: threading.Thread
         self.serial_port = None  # type: serial.Serial
 
@@ -51,16 +50,16 @@ class SerialHandler:
     def read(self):
         while self.is_connected:
             try:
-                self.message = self.serial_port.readline()
-                if len(self.message) > 0:
+                data = self.serial_port.readline()
+                if len(data) > 0:
                     # If this message is a packed message, you should parse it in the following way:
-                    self.on_data_received(str(self.message).replace("\\\\", "\\")[2:-3])
+                    self.on_received(str(data).replace("\\\\", "\\")[2:-3])
                     # Otherwise:
-                    # self.on_data_received(str(self.message))
+                    # self.on_received(str(data))
             except Exception as e:
                 print(e)
 
-    def write(self, message: str = None):
+    def send(self, message: str = None):
         if self.is_connected:
             try:
                 message = message.replace("\n", "").replace("\\n", "")
